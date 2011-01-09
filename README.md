@@ -142,19 +142,9 @@ Example:
 
 #### geojson.js 
 
-This function outputs a GeoJSON FeatureCollection (compatible with
-OpenLayers). The geometry is stored in the `geometry` property, all
-other properties in the `properties` property.
-
-Examples:
-
-    $ curl -X PUT -d '{"type":"Feature", "color":"orange" ,"geometry":{"type":"Point","coordinates":[11.395,48.949444]}}' 'http://localhost:5984/geo/myfeature'
-	{
-	   "ok":true,
-	   "id":"myfeature",
-	   "rev":"1-2eeb1e5eee6c8e7507b671aa7d5b0654"
-	}
-
+This function outputs a GeoJSON FeatureCollection (compatible with OpenLayers). 
+  
+Example:
 
 	$curl -X GET 'http://localhost:5984/yourdb/_design/geo/_spatiallist/geojson/points?bbox=80,88,90,90'	
 	{
@@ -184,7 +174,7 @@ This will take the centroid of the bbox parameter and a supplied radius paramete
 
 Example:
 
-	$ curl -X GET http://localhost:5984/yourdb/_design/geo/_spatiallist/radius/points?bbox=-122.677,45.523,-122.675,45.524&radius=50
+	$ curl -X GET http://localhost:5984/yourdb/_design/geo/_spatiallist/radius/points?bbox=-122.67,45.52,-122.67,45.52&radius=50
 	{
 	   "type":"FeatureCollection",
 	   "features":[
