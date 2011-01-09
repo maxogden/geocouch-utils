@@ -4,7 +4,7 @@ This is a [CouchApp](http://couchapp.org/page/index) providing spatial functions
 
 ### Quick install (without cloning this repo)
 
-Then replicate the geocouch utils from @maxogden's public couch to your database: 
+Replicate this CouchApp from @maxogden's [public couch](http://max.couchone.com/apps/_design/geo) to your database:
 
     curl -X POST http://YOURCOUCH/_replicate -d '{"source":"http://max.couchone.com/apps","target":"http://YOURCOUCH/DBNAME", "doc_ids":["_design/geo"]}'
 
