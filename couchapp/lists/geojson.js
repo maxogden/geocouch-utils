@@ -14,6 +14,8 @@ function(head, req) {
     else
       start({"headers":{"Content-Type" : "text/plain"}});
 
+    if ('callback' in req.query) send(req.query['callback'] + "(");
+
     send('{"type": "FeatureCollection", "features":[');
     while (row = getRow()) {
         out = '{"type": "Feature", "geometry": ' + JSON.stringify(row.value.geometry);
@@ -24,4 +26,6 @@ function(head, req) {
         sep = ',\n';
     }
     send("]}");
+    if ('callback' in req.query) send(")");
+    
 };
