@@ -159,6 +159,19 @@ A simple map function that returns all documents. It's like _all_docs, but you c
 
 ### [List Functions](http://guide.couchdb.org/draft/transforming.html)
 
+#### csv.js
+
+Not geo-specific (e.g. you can use it on any database in Couch). Simply takes your documents and emits a CSV object representing them. One limitation of this list is that every document is expected to have the same schema.
+
+Example:
+
+    $ curl http://localhost:5984/yourdb/_design/geo/_list/csv/all
+
+    _id,_rev,hello
+    0a631dc03a00e13a48f39817000003ae,1-15f65339921e497348be384867bb940f,world
+    0a631dc03a00e13a48f3981700000c36,1-15f65339921e497348be384867bb940f,world
+    0a631dc03a00e13a48f3981700001114,1-15f65339921e497348be384867bb940f,world
+
 #### kml.js
 
 This list function generates a simple KML feed
