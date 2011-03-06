@@ -1,5 +1,7 @@
 /**
- * Reduces to a list of unique object key attributes
+ * Reduces the passed in view headers to a list of unique object key attributes
+ *
+ * @author Max Ogden
  */
 function(keys, values, rereduce) { 
 
