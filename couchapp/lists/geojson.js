@@ -18,7 +18,8 @@ function(head, req) {
 
     send('{"type": "FeatureCollection", "features":[');
     while (row = getRow()) {
-        out = '{"type": "Feature", "geometry": ' + JSON.stringify(row.value.geometry);
+        out = '{"type": "Feature", "id": ' + JSON.stringify(row.id);
+        out += ', "geometry": ' + JSON.stringify(row.value.geometry);
         delete row.value.geometry;
         out += ', "properties": ' + JSON.stringify(row.value) + '}';
 
