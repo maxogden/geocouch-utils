@@ -1,6 +1,6 @@
 # Helper Functions for GeoCouch
 
-This is a [CouchApp](http://couchapp.org/page/index) providing spatial functions and a set of helper scripts for GeoCouch. You can find the CouchApp in the `couchapp/` directory. For instructions on using GeoCouch, see the [GeoCouch Readme](github.com/vmx/couchdb#readme)
+This is a [CouchApp](http://couchapp.org/page/index) providing spatial functions and a set of helper scripts for GeoCouch. You can find the CouchApp in the `couchapp/` directory. For instructions on using GeoCouch, see the [GeoCouch Readme](github.com/couchbase/geocouch#readme)
 
 ### Quick install (without cloning this repo)
 
@@ -22,7 +22,7 @@ A specific document structure is used consistently within all utilities and exam
 
 Once you have the couchapp utility working, <code>git clone</code> this repo and go into this folder and execute <code>couchapp init</code>. To upload these utils into your couch run <code>couchapp push http://YOURCOUCH/DATABASENAME</code>.
 
-### [Spatial Views](https://github.com/vmx/couchdb)
+### [Spatial Views](https://github.com/couchbase/geocouch)
 
 #### points.js
 
