@@ -3,6 +3,7 @@
  */
  
 function(doc) {
+  // from https://gist.github.com/543273
   var simplify = function (source, kink) {
     /* source[] array of geojson points */
     /* kink	in metres, kinks above this depth kept  */
@@ -126,13 +127,14 @@ function(doc) {
   }
   
 	if(doc.geometry) {
+	  var kink = 50;
 	  newDoc = clone(doc);
 	  if (doc.geometry.type === "Polygon") {
-    newDoc.geometry.coordinates[0] = simplify(newDoc.geometry.coordinates[0], 100);
+    newDoc.geometry.coordinates[0] = simplify(newDoc.geometry.coordinates[0], kink);
   		emit(newDoc.geometry, newDoc);
 		} else if (doc.geometry.type === "MultiPolygon") {
 		  for(var i = 0; i < newDoc.geometry.coordinates.length; i++) {
-		  newDoc.geometry.coordinates[i][0] = simplify(newDoc.geometry.coordinates[i][0], 100);
+		  newDoc.geometry.coordinates[i][0] = simplify(newDoc.geometry.coordinates[i][0], kink);
   		emit(newDoc.geometry, newDoc);
 		  }
 		}
