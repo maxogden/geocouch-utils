@@ -31,7 +31,12 @@ function hideLoader() {
 }
 
 function gotFirstDoc(data) {
-  $.getJSON(config.couchUrl + "/api/" + data.rows[0].id, function(moarData){
+  // find the first non design doc
+  var firstDoc = $(data.rows).map(function(i, r){
+    if (r.id.indexOf("_design/") == -1) return r;
+  })[0];
+    
+  $.getJSON(config.couchUrl + "/api/" + firstDoc.id, function(moarData){
     function getCoordinatesArray(obj){
       for(var key in obj) {
         if(key == "coordinates") {
@@ -57,8 +62,8 @@ function gotFirstDoc(data) {
       return flatten(coordinates);
     }
     var coordinates = getCoordinatesArray(moarData.geometry);
+    console.log(moarData)
     var center = getCoordinates(coordinates);
-    console.log(center)
     config.mapCenterLon = center[0];
     config.mapCenterLat = center[1];
     createMap(config);
@@ -151,7 +156,6 @@ function createMap(config) {
     var bbox = getBB();
     showLoader();
     fetchFeatures( bbox, function( data ){
-      console.log(JSON.stringify(data));
       var feature = po.geoJson()
             .features( data.features )
             .on( "show", load );
@@ -232,7 +236,7 @@ $(function(){
   }
 
   $.ajax({ 
-    url: config.couchUrl + "/api/_all_docs?limit=1",
+    url: config.couchUrl + "/api/_all_docs?limit=10",
     dataType: 'jsonp', 
     success: gotFirstDoc
   }); 
