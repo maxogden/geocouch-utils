@@ -1,4 +1,4 @@
-var map, po, currentData, geoJson;
+var map, po, currentData, geoJson, db;
 
 // Should probably abstract out the couch url and the db prefix and the version and the starting map center.
 var config = {
@@ -9,8 +9,8 @@ var config = {
   db: "api", // relative vhost links defined in rewrites.json
   design: "ddoc",
   vhost: true,
-  baseURL: "/",
-  host: window.location.href.split( "/" )[ 2 ],  
+  couchUrl: "",
+  host: "http://" + window.location.href.split( "/" )[ 2 ],  
 };
 
 // vhosts are when you mask couchapps behind a pretty URL
@@ -36,7 +36,7 @@ function gotFirstDoc(data) {
     if (r.id.indexOf("_design/") == -1) return r;
   })[0];
     
-  $.getJSON(config.couchUrl + "/api/" + firstDoc.id, function(moarData){
+  $.getJSON(config.host + config.couchUrl + "/api/" + firstDoc.id, function(moarData){
     function getCoordinatesArray(obj){
       for(var key in obj) {
         if(key == "coordinates") {
@@ -62,7 +62,6 @@ function gotFirstDoc(data) {
       return flatten(coordinates);
     }
     var coordinates = getCoordinatesArray(moarData.geometry);
-    console.log(moarData)
     var center = getCoordinates(coordinates);
     config.mapCenterLon = center[0];
     config.mapCenterLat = center[1];
@@ -93,138 +92,148 @@ function createMap(config) {
   map.add(po.compass()
       .pan("none"));
   
-  function randomColor(colors) {
-    var sick_neon_colors = ["#CB3301", "#FF0066", "#FF6666", "#FEFF99", "#FFFF67", "#CCFF66", "#99FE00", "#EC8EED", "#FF99CB", "#FE349A", "#CC99FE", "#6599FF", "#03CDFF"];
-    return sick_neon_colors[Math.floor(Math.random()*sick_neon_colors.length)];
-  };
-  
-  function load(e){
-    var cssObj = randColor = randomColor();
-    for (var i = 0; i < e.features.length; i++) {
-      var feature = e.features[i];
-      if( feature.data.geometry.type == 'LineString' || feature.data.geometry.type == 'MultiLineString' ) {
-        cssObj = {
-          fill: 'none',
-          stroke: randColor,
-          strokeWidth:2,
-          opacity: .9 
-        }
-      } else {
-        cssObj = {
-          fill: randColor,
-          opacity: .9 
-        }
-      }
-      $( feature.element )
-        .css( cssObj )
-    }
-    
-    var counts = {};
-    $.each(e.features, function( i, feature) {
-      var type = this.data.geometry.type.toLowerCase(),
-          el = this.element,
-          $el   = $(el),
-          $cir  = $(el.firstChild),
-          text  = po.svg('text'),
-          props = $.extend(this.data.properties, {content: 'sadasd'}),
-          check = $('span.check[data-code=' + props.code + ']'),
-          inact = check.hasClass('inactive');
-      if(!counts[props.code]) {
-        counts[props.code] = 0
-      } 
-      counts[props.code]++
-      $el.bind('click', {props: props, geo: this.data.geometry}, onPointClick)      
-      text.setAttribute("text-anchor", "middle")
-      text.setAttribute("dy", ".35em")
-      text.appendChild(document.createTextNode(props.code))
-      el.appendChild(text)
-    })
-  }
-
-  function fetchFeatures(bbox, callback) {
-    $.ajax({
-      url: config.couchUrl + "/data",
-      dataType: 'jsonp',
-      data: {
-        "bbox": bbox
-      },
-      success: callback
-    });
-  }
-
-  var showDataset = function() {
-    var bbox = getBB();
-    showLoader();
-    fetchFeatures( bbox, function( data ){
-      var feature = po.geoJson()
-            .features( data.features )
-            .on( "show", load );
-      map.add( feature );
-      hideLoader();
-    })
-  }
-
-  var getBB = function(){
-    return map.extent()[0].lon + "," + map.extent()[0].lat + "," + map.extent()[1].lon + "," + map.extent()[1].lat;
-  }
-
-  var onPointClick = function( event ) {
-    
-   var coor = event.data.geo.coordinates,
-       props = event.data.props;
-  
-   config.mapContainer
-     .maptip(this)
-     .map(map)
-     .data(props)
-     .location({lat: coor[1], lon: coor[0]})
-     .classNames(function(d) {
-       return d.code
-     })
-     .top(function(tip) {
-       var point = tip.props.map.locationPoint(this.props.location)
-       return parseFloat(point.y - 30)
-     })
-     .left(function(tip) {
-       var radius = tip.target.getAttribute('r'),
-           point = tip.props.map.locationPoint(this.props.location)
-       
-       return parseFloat(point.x + (radius / 2.0) + 20)
-     })
-     .content(function(d) {
-       var self = this,
-           props = d,
-           cnt = $('<div/>'),
-           hdr = $('<h2/>'),
-           bdy = $('<p/>'),
-           check = $('#sbar span[data-code=' + props.code + ']'),
-           ctype = check.next().clone(),
-           otype = check.closest('li.group').attr('data-code'),
-           close = $('<span/>').addClass('close').text('x')
-
-
-       hdr.append($('<span/>').addClass('badge').text('E').attr('data-code', otype))
-         .append(ctype)
-         .append(close)
-         .addClass(otype) 
-       
-       bdy.text(props.address)
-       bdy.append($('<span />')
-         .addClass('date')
-         .text(props.properties.neighborhood))
-       
-       cnt.append($('<div/>').addClass('nub'))
-       cnt.append(hdr).append(bdy) 
-       
-       close.click(function() {
-         self.hide()
-       })   
-   
-       return cnt
-     }).render()    
-  };
   showDataset();
 }
+
+function randomColor(colors) {
+  var sick_neon_colors = ["#CB3301", "#FF0066", "#FF6666", "#FEFF99", "#FFFF67", "#CCFF66", "#99FE00", "#EC8EED", "#FF99CB", "#FE349A", "#CC99FE", "#6599FF", "#03CDFF"];
+  return sick_neon_colors[Math.floor(Math.random()*sick_neon_colors.length)];
+};
+
+function load(e){
+  var cssObj = randColor = randomColor();
+  for (var i = 0; i < e.features.length; i++) {
+    var feature = e.features[i];
+    if( feature.data.geometry.type == 'LineString' || feature.data.geometry.type == 'MultiLineString' ) {
+      cssObj = {
+        fill: 'none',
+        stroke: randColor,
+        strokeWidth:2,
+        opacity: .9 
+      }
+    } else {
+      cssObj = {
+        fill: randColor,
+        opacity: .9 
+      }
+    }
+    $( feature.element )
+      .css( cssObj )
+  }
+  
+  var counts = {};
+  $.each(e.features, function( i, feature) {
+    var type = this.data.geometry.type.toLowerCase(),
+        el = this.element,
+        $el   = $(el),
+        $cir  = $(el.firstChild),
+        text  = po.svg('text'),
+        props = $.extend(this.data.properties, {content: 'sadasd'}),
+        check = $('span.check[data-code=' + props.code + ']'),
+        inact = check.hasClass('inactive');
+    if(!counts[props.code]) {
+      counts[props.code] = 0
+    } 
+    counts[props.code]++
+    $el.bind('click', {props: props, geo: this.data.geometry}, onPointClick)      
+    text.setAttribute("text-anchor", "middle")
+    text.setAttribute("dy", ".35em")
+    text.appendChild(document.createTextNode(props.code))
+    el.appendChild(text)
+  })
+}
+
+function fetchFeatures(bbox, callback) {
+  $.ajax({
+    url: config.couchUrl + "/data",
+    dataType: 'jsonp',
+    data: {
+      "bbox": bbox
+    },
+    success: callback
+  });
+}
+
+var showDataset = function() {
+  var bbox = getBB();
+  showLoader();
+  fetchFeatures( bbox, function( data ){
+    var feature = po.geoJson()
+          .features( data.features )
+          .on( "show", load );
+    map.add( feature );
+    db = $.couch.db("api");
+    var changeHandler = db.changes(0, {"include_docs":"true"});
+    changeHandler.onChange(function(change) {
+      console.log(change)
+      var feature = po.geoJson()
+            .features( [{"type": "Feature", "geometry": change.results[0].doc.geometry}] )
+            .on( "show", load );
+      map.add( feature );
+    });
+    hideLoader();
+  })
+}
+
+var getBB = function(){
+  return map.extent()[0].lon + "," + map.extent()[0].lat + "," + map.extent()[1].lon + "," + map.extent()[1].lat;
+}
+
+var onPointClick = function( event ) {
+  
+ var coor = event.data.geo.coordinates,
+     props = event.data.props;
+
+ config.mapContainer
+   .maptip(this)
+   .map(map)
+   .data(props)
+   .location({lat: coor[1], lon: coor[0]})
+   .classNames(function(d) {
+     return d.code
+   })
+   .top(function(tip) {
+     var point = tip.props.map.locationPoint(this.props.location)
+     return parseFloat(point.y - 30)
+   })
+   .left(function(tip) {
+     var radius = tip.target.getAttribute('r'),
+         point = tip.props.map.locationPoint(this.props.location)
+     
+     return parseFloat(point.x + (radius / 2.0) + 20)
+   })
+   .content(function(d) {
+     var self = this,
+         props = d,
+         cnt = $('<div/>'),
+         hdr = $('<h2/>'),
+         bdy = $('<p/>'),
+         check = $('#sbar span[data-code=' + props.code + ']'),
+         ctype = check.next().clone(),
+         otype = check.closest('li.group').attr('data-code'),
+         close = $('<span/>').addClass('close').text('x')
+
+
+     hdr.append($('<span/>').addClass('badge').text('E').attr('data-code', otype))
+       .append(ctype)
+       .append(close)
+       .addClass(otype) 
+     
+     bdy.text(props.address)
+     bdy.append($('<span />')
+       .addClass('date')
+       .text(props.properties.neighborhood))
+     
+     cnt.append($('<div/>').addClass('nub'))
+     cnt.append(hdr).append(bdy) 
+     
+     close.click(function() {
+       self.hide()
+     })   
+ 
+     return cnt
+   }).render()    
+};
 
 $(function(){  
   if ( !inVhost() ) {
@@ -235,11 +244,7 @@ $(function(){
     cfg.couchUrl = "/" + cfg.db + "/_design/" + cfg.design + "/_rewrite/";
   }
 
-  $.ajax({ 
-    url: config.couchUrl + "/api/_all_docs?limit=10",
-    dataType: 'jsonp', 
-    success: gotFirstDoc
-  }); 
+  $.getJSON( config.host + config.couchUrl + "/api/_all_docs?limit=10", gotFirstDoc); 
 
   $(".gencalls").click(function(){
     $('#dialog ul').html("");
