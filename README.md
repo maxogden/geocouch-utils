@@ -204,6 +204,7 @@ Example:
 	   "features":[
 	      {
 	         "type":"Feature",
+                 "id":"c0c048ad2770bb836a10f164cc08a3e5",
 	         "geometry":{
 	            "type":"Point",
 	            "coordinates":[
