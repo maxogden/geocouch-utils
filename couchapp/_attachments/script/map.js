@@ -29,14 +29,18 @@ function showLoader() {
 function hideLoader() {
   $('.map_header').first().removeClass('loading');  
 }
-
 function gotFirstDoc(data) {
+  data = JSON.parse(data);
+  console.log(data)
   // find the first non design doc
   var firstDoc = $(data.rows).map(function(i, r){
     if (r.id.indexOf("_design/") == -1) return r;
   })[0];
+  
+  console.log('first',firstDoc)
     
-  $.getJSON(config.host + config.couchUrl + "/api/" + firstDoc.id, function(moarData){
+  $.get(config.host + config.couchUrl + "/api/" + firstDoc.id, function(moarData){
+    moarData = JSON.parse(moarData);
     function getCoordinatesArray(obj){
       for(var key in obj) {
         if(key == "coordinates") {
@@ -65,6 +69,7 @@ function gotFirstDoc(data) {
     var center = getCoordinates(coordinates);
     config.mapCenterLon = center[0];
     config.mapCenterLat = center[1];
+    console.log("config", config)
     createMap(config);
   })
 }
@@ -145,8 +150,7 @@ function load(e){
 
 function fetchFeatures(bbox, callback) {
   $.ajax({
-    url: config.couchUrl + "/data",
-    dataType: 'jsonp',
+    url: config.couchUrl + "data",
     data: {
       "bbox": bbox
     },
@@ -158,11 +162,12 @@ var showDataset = function() {
   var bbox = getBB();
   showLoader();
   fetchFeatures( bbox, function( data ){
+    data = JSON.parse(data);
     var feature = po.geoJson()
           .features( data.features )
           .on( "show", load );
     map.add( feature );
-    db = $.couch.db("api");
+    db = $.couch.db("catmapper");
     var changeHandler = db.changes(0, {"include_docs":"true"});
     changeHandler.onChange(function(change) {
       console.log(change)
@@ -244,7 +249,7 @@ $(function(){
     cfg.couchUrl = "/" + cfg.db + "/_design/" + cfg.design + "/_rewrite/";
   }
 
-  $.getJSON( config.host + config.couchUrl + "/api/_all_docs?limit=10", gotFirstDoc); 
+  $.get( config.host + config.couchUrl + "/api/_all_docs?limit=10", gotFirstDoc); 
 
   $(".gencalls").click(function(){
     $('#dialog ul').html("");

@@ -20,7 +20,7 @@
     "from": ""
   },
   {
-    "to": "/_spatial/_list/geojson/full",
+    "to": "/_spatiallist/geojson/full",
     "from": "/data"
   },
   {
