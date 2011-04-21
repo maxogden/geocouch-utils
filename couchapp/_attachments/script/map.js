@@ -250,22 +250,4 @@ $(function(){
   }
 
   $.get( config.host + config.couchUrl + "/api/_all_docs?limit=10", gotFirstDoc); 
-
-  $(".gencalls").click(function(){
-    $('#dialog ul').html("");
-    $('[type=checkbox]').each(function(i, item){
-      var input = $(this),
-          dataSet = config.dbPrefix + input.parent().attr('class');
-
-      if( $(this).attr('checked') ) {
-        $('#dialog ul').append( "<li><a href='"+config.couchUrl + config.rewrite + "/"+config.version+"/" + dataSet + "?" + $.param({"bbox": getBB()}) + "'>" + dataSet + "</a></li>" );
-      }
-    });
-    
-    $('#dialog').dialog({
-      modal: true,
-      title: 'API Calls',
-      width: 400
-    })
-  })
 });
