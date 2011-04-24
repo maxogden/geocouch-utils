@@ -29,6 +29,7 @@ function showLoader() {
 function hideLoader() {
   $('.map_header').first().removeClass('loading');  
 }
+
 function gotFirstDoc(data) {
   data = JSON.parse(data);
   // find the first non design doc
@@ -129,7 +130,7 @@ function load(e){
         $el   = $(el),
         $cir  = $(el.firstChild),
         text  = po.svg('text'),
-        props = $.extend(this.data.properties, {content: 'sadasd'}),
+        props = this.data.properties,
         check = $('span.check[data-code=' + props.code + ']'),
         inact = check.hasClass('inactive');
     if(!counts[props.code]) {
@@ -179,59 +180,78 @@ var getBB = function(){
   return map.extent()[0].lon + "," + map.extent()[0].lat + "," + map.extent()[1].lon + "," + map.extent()[1].lat;
 }
 
+var formatMetadata = function(data) {
+  out = '<dl>';
+  $.each(data, function(key, val) {
+    if (typeof(val) == 'string' && key[0] != '_') {
+      out = out + '<dt>' + key + '<dd>' + val;
+    } else if (typeof(val) == 'object' && key != "geometry" && val != null) {
+      if (key == 'properties') {
+        $.each(val, function(attr, value){
+          out = out + '<dt>' + attr + '<dd>' + value;
+        })
+      } else {
+        out = out + '<dt>' + key + '<dd>' + val.join(', ');
+      }
+    }
+  });
+  out = out + '</dl>';
+  return out;
+}
+
 var onPointClick = function( event ) {
-  
- var coor = event.data.geo.coordinates,
-     props = event.data.props,
-     centroid = gju.centroid(event.data.geo);
+  var coor = event.data.geo.coordinates,
+    props = event.data.props,
+    centroid = gju.centroid(event.data.geo);
+    
+  config.mapContainer
+    .maptip(this)
+    .map(map)
+    .data(props)
+    .location({lat: centroid.coordinates[1], lon: centroid.coordinates[0]})
+    .classNames(function(d) {
+      return d.code
+    })
+    .top(function(tip) {
+      var point = tip.props.map.locationPoint(this.props.location)
+      return parseFloat(point.y - 30)
+    })
+    .left(function(tip) {
+      var radius = tip.target.getAttribute('r'),
+          point = tip.props.map.locationPoint(this.props.location)
+      return parseFloat(point.x + (radius / 2.0) + 20)
+    })
+    .content(function(d) {
+      var self = this,
+        props = d,
+        cnt = $('<div/>'),
+        hdr = $('<h2/>'),
+        bdy = $('<p/>'),
+        check = $('#sbar span[data-code=' + props.code + ']'),
+        ctype = check.next().clone(),
+        otype = check.closest('li.group').attr('data-code'),
+        close = $('<span/>').addClass('close').text('x')
 
- config.mapContainer
-   .maptip(this)
-   .map(map)
-   .data(props)
-   .location({lat: centroid.coordinates[1], lon: centroid.coordinates[0]})
-   .classNames(function(d) {
-     return d.code
-   })
-   .top(function(tip) {
-     var point = tip.props.map.locationPoint(this.props.location)
-     return parseFloat(point.y - 30)
-   })
-   .left(function(tip) {
-     var radius = tip.target.getAttribute('r'),
-         point = tip.props.map.locationPoint(this.props.location)
-     return parseFloat(point.x + (radius / 2.0) + 20)
-   })
-   .content(function(d) {
-     var self = this,
-         props = d,
-         cnt = $('<div/>'),
-         hdr = $('<h2/>'),
-         bdy = $('<p/>'),
-         check = $('#sbar span[data-code=' + props.code + ']'),
-         ctype = check.next().clone(),
-         otype = check.closest('li.group').attr('data-code'),
-         close = $('<span/>').addClass('close').text('x')
+      hdr.append($('<span/>').addClass('badge').text('E').attr('data-code', otype))
+        .append("properties")
+        .append(ctype)
+        .append(close)
+        .addClass(otype) 
+    
+      bdy.html(formatMetadata(props))
+      bdy.append($('<span />')
+        .addClass('date')
+        .text(props.properties))
+    
+      cnt.append($('<div/>').addClass('nub'))
+      cnt.append(hdr).append(bdy) 
+    
+      close.click(function() {
+        self.hide()
+      })   
 
-     hdr.append($('<span/>').addClass('badge').text('E').attr('data-code', otype))
-       .append(ctype)
-       .append(close)
-       .addClass(otype) 
-     
-     bdy.text(props.address)
-     bdy.append($('<span />')
-       .addClass('date')
-       .text(props.properties.neighborhood))
-     
-     cnt.append($('<div/>').addClass('nub'))
-     cnt.append(hdr).append(bdy) 
-     
-     close.click(function() {
-       self.hide()
-     })   
- 
-     return cnt
-   }).render()    
+      return cnt
+    }).render()    
 };
 
 $(function(){  
