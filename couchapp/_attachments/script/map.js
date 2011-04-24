@@ -31,14 +31,11 @@ function hideLoader() {
 }
 function gotFirstDoc(data) {
   data = JSON.parse(data);
-  console.log(data)
   // find the first non design doc
   var firstDoc = $(data.rows).map(function(i, r){
     if (r.id.indexOf("_design/") == -1) return r;
   })[0];
   
-  console.log('first',firstDoc)
-    
   $.get(config.host + config.couchUrl + "/api/" + firstDoc.id, function(moarData){
     moarData = JSON.parse(moarData);
     function getCoordinatesArray(obj){
@@ -69,7 +66,6 @@ function gotFirstDoc(data) {
     var center = getCoordinates(coordinates);
     config.mapCenterLon = center[0];
     config.mapCenterLat = center[1];
-    console.log("config", config)
     createMap(config);
   })
 }
@@ -170,7 +166,6 @@ var showDataset = function() {
     db = $.couch.db("catmapper");
     var changeHandler = db.changes(0, {"include_docs":"true"});
     changeHandler.onChange(function(change) {
-      console.log(change)
       var feature = po.geoJson()
             .features( [{"type": "Feature", "geometry": change.results[0].doc.geometry}] )
             .on( "show", load );
@@ -187,13 +182,14 @@ var getBB = function(){
 var onPointClick = function( event ) {
   
  var coor = event.data.geo.coordinates,
-     props = event.data.props;
+     props = event.data.props,
+     centroid = gju.centroid(event.data.geo);
 
  config.mapContainer
    .maptip(this)
    .map(map)
    .data(props)
-   .location({lat: coor[1], lon: coor[0]})
+   .location({lat: centroid.coordinates[1], lon: centroid.coordinates[0]})
    .classNames(function(d) {
      return d.code
    })
@@ -204,7 +200,6 @@ var onPointClick = function( event ) {
    .left(function(tip) {
      var radius = tip.target.getAttribute('r'),
          point = tip.props.map.locationPoint(this.props.location)
-     
      return parseFloat(point.x + (radius / 2.0) + 20)
    })
    .content(function(d) {
@@ -217,7 +212,6 @@ var onPointClick = function( event ) {
          ctype = check.next().clone(),
          otype = check.closest('li.group').attr('data-code'),
          close = $('<span/>').addClass('close').text('x')
-
 
      hdr.append($('<span/>').addClass('badge').text('E').attr('data-code', otype))
        .append(ctype)
