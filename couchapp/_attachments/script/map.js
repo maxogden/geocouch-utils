@@ -164,14 +164,6 @@ var showDataset = function() {
           .features( data.features )
           .on( "show", load );
     map.add( feature );
-    db = $.couch.db("catmapper");
-    var changeHandler = db.changes(0, {"include_docs":"true"});
-    changeHandler.onChange(function(change) {
-      var feature = po.geoJson()
-            .features( [{"type": "Feature", "geometry": change.results[0].doc.geometry}] )
-            .on( "show", load );
-      map.add( feature );
-    });
     hideLoader();
   })
 }
