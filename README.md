@@ -6,7 +6,7 @@ This is a [CouchApp](http://couchapp.org/page/index) providing spatial functions
 
 Replicate this CouchApp from @maxogden's [public couch](http://max.couchone.com/apps/_design/geo) to your database:
 
-    curl -X POST http://YOURCOUCH/_replicate -d '{"source":"http://max.couchone.com/apps","target":"http://YOURCOUCH/DBNAME", "doc_ids":["_design/geo"]}'
+    curl -X POST http://YOURCOUCH/_replicate -d '{"source":"http://max.couchone.com/apps","target":"http://YOURCOUCH/DBNAME", "doc_ids":["_design/geo"]}' -H "Content-type:application/json"
 
 ### In-depth install
 
