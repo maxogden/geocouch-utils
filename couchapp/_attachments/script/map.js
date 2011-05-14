@@ -193,8 +193,12 @@ var formatMetadata = function(data) {
 
 var onPointClick = function( event ) {
   var coor = event.data.geo.coordinates,
-    props = event.data.props,
-    centroid = gju.centroid(event.data.geo);
+    props = event.data.props;
+  if (event.data.geo.type === "Point") {
+    var centroid = event.data.geo;
+  } else {
+    var centroid = gju.centroid(event.data.geo);
+  }
     
   config.mapContainer
     .maptip(this)
