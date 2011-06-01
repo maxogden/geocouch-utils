@@ -9,7 +9,7 @@ function(head, req) {
     var row, out, sep = '\n';
 
     // Send the same Content-Type as CouchDB would
-    if (req.headers.Accept.indexOf('application/json')!=-1)
+    if (typeof(req.headers.Accept) != "undefined" && req.headers.Accept.indexOf('application/json')!=-1)
       start({"headers":{"Content-Type" : "application/json"}});
     else
       start({"headers":{"Content-Type" : "text/plain"}});
