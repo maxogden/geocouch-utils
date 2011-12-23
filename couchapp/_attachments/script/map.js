@@ -92,7 +92,7 @@ function createMap(config) {
       .hosts(["a.", "b.", "c.", ""])));
 
   map.add(po.geoJson()
-      .url(config.couchUrl + "data?bbox={G}")
+      .url(config.couchUrl + "data?bbox={G}"));
 
   map.add(po.compass()
       .pan("none"));
