@@ -114,7 +114,7 @@ function load(e){
       cssObj = {
         fill: 'none',
         stroke: randColor,
-        strokeWidth:2,
+        strokeWidth: 2,
         opacity: .9 
       }
     } else {
