@@ -96,9 +96,7 @@ function createMap(config) {
       .on("load", load));
 
   map.add(po.compass()
-      .pan("none"));
-  
-  showDataset();
+      .pan("none"));  
 }
 
 function randomColor(colors) {
@@ -114,7 +112,7 @@ function load(e){
       cssObj = {
         fill: 'none',
         stroke: randColor,
-        strokeWidth: 2,
+        strokeWidth:2,
         opacity: .9 
       }
     } else {
@@ -147,33 +145,7 @@ function load(e){
     text.appendChild(document.createTextNode(props.code))
     el.appendChild(text)
   })
-}
-
-function fetchFeatures(bbox, callback) {
-  $.ajax({
-    url: config.couchUrl + "data",
-    data: {
-      "bbox": bbox
-    },
-    success: callback
-  });
-}
-
-var showDataset = function() {
-  var bbox = getBB();
-  showLoader();
-  fetchFeatures( bbox, function( data ){
-    data = JSON.parse(data);
-    var feature = po.geoJson()
-          .features( data.features )
-          .on( "show", load );
-    map.add( feature );
-    hideLoader();
-  })
-}
-
-var getBB = function(){
-  return map.extent()[0].lon + "," + map.extent()[0].lat + "," + map.extent()[1].lon + "," + map.extent()[1].lat;
+  hideLoader();
 }
 
 var formatMetadata = function(data) {
@@ -262,6 +234,6 @@ $(function(){
     cfg.design = unescape( document.location.href ).split( '/' )[ 5 ];
     cfg.couchUrl = "/" + cfg.db + "/_design/" + cfg.design + "/_rewrite/";
   }
-
+  showLoader();
   $.get( config.host + config.couchUrl + "/api/_all_docs?limit=10", gotFirstDoc); 
 });
