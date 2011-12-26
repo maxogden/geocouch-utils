@@ -168,14 +168,19 @@ var formatMetadata = function(data) {
 }
 
 var onPointClick = function( event ) {
+  console.log(event);
   var coor = event.data.geo.coordinates,
     props = event.data.props;
   if (event.data.geo.type === "Point") {
     var centroid = event.data.geo;
-  } else {
+  } else { 
     var centroid = gju.centroid(event.data.geo);
   }
-    
+  if (isNaN(centroid.coordinates[0])) {
+    var userCoord = map.pointLocation({x:event.clientX, y:event.clientY});
+    centroid.coordinates = [userCoord.lon, userCoord.lat];
+  }
+
   config.mapContainer
     .maptip(this)
     .map(map)
