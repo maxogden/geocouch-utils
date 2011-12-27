@@ -96,9 +96,7 @@ function createMap(config) {
       .on("load", load));
 
   map.add(po.compass()
-      .pan("none"));
-  
-  showDataset();
+      .pan("none"));  
 }
 
 function randomColor(colors) {
@@ -147,33 +145,7 @@ function load(e){
     text.appendChild(document.createTextNode(props.code))
     el.appendChild(text)
   })
-}
-
-function fetchFeatures(bbox, callback) {
-  $.ajax({
-    url: config.couchUrl + "data",
-    data: {
-      "bbox": bbox
-    },
-    success: callback
-  });
-}
-
-var showDataset = function() {
-  var bbox = getBB();
-  showLoader();
-  fetchFeatures( bbox, function( data ){
-    data = JSON.parse(data);
-    var feature = po.geoJson()
-          .features( data.features )
-          .on( "show", load );
-    map.add( feature );
-    hideLoader();
-  })
-}
-
-var getBB = function(){
-  return map.extent()[0].lon + "," + map.extent()[0].lat + "," + map.extent()[1].lon + "," + map.extent()[1].lat;
+  hideLoader();
 }
 
 var formatMetadata = function(data) {
@@ -203,7 +175,11 @@ var onPointClick = function( event ) {
   } else {
     var centroid = gju.centroid(event.data.geo);
   }
-    
+  if (isNaN(centroid.coordinates[0])) {
+    var userCoord = map.pointLocation({x:event.clientX, y:event.clientY});
+    centroid.coordinates = [userCoord.lon, userCoord.lat];
+  }
+
   config.mapContainer
     .maptip(this)
     .map(map)
@@ -262,6 +238,6 @@ $(function(){
     cfg.design = unescape( document.location.href ).split( '/' )[ 5 ];
     cfg.couchUrl = "/" + cfg.db + "/_design/" + cfg.design + "/_rewrite/";
   }
-
+  showLoader();
   $.get( config.host + config.couchUrl + "/api/_all_docs?limit=10", gotFirstDoc); 
 });
