@@ -227,7 +227,7 @@ This will take the centroid of the bbox parameter and a supplied radius paramete
 
 Example:
 
-	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/_list/radius/points?bbox=-122.67,45.52,-122.67,45.52&radius=50'
+	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/_list/radius/basic?bbox=-122.67,45.52,-122.67,45.52&radius=50'
 	{
 	   "type":"FeatureCollection",
 	   "features":[
