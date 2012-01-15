@@ -139,6 +139,30 @@
     return { 'type': 'Point', 'coordinates': [y/f, x/f] };
   },
 
+  // checks if geometry lies entirely within a circle
+  // works with Point, LineString, Polygon
+  gju.geometryWithinRadius = function (geometry, center, radius) {
+    if (geometry.type == 'Point') {
+      return gju.pointDistance(geometry, center) <= radius;
+    } else if (geometry.type == 'LineString' || geometry.type == 'Polygon') {
+      var point = {};
+      var coordinates;
+      if (geometry.type == 'Polygon') {
+        // it's enough to check the exterior ring of the Polygon
+        coordinates = geometry.coordinates[0];
+      } else {
+        coordinates = geometry.coordinates;
+      }
+      for (var i in coordinates) {
+        point.coordinates = coordinates[i];
+        if (gju.pointDistance(point, center) > radius) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   gju.simplify = function (source, kink) {
     /* source[] array of geojson points */
     /* kink	in metres, kinks above this depth kept  */

@@ -16,7 +16,6 @@ function(head, req) {
         "coordinates": [[[bbox[0], bbox[1]], [bbox[2], bbox[3]]]]
       }),
       callback = req.query.callback,
-      circle = gju.drawCircle(radius, center),
       startedOutput = false;
 
   if (req.headers.Accept.indexOf('application/json') != -1)
@@ -27,7 +26,7 @@ function(head, req) {
   if ('callback' in req.query) send(req.query['callback'] + "(");
   send('{"type": "FeatureCollection", "features":[');
   while (row = getRow()) {
-    if (gju.pointInPolygon(row.value.geometry, circle)) {
+    if (gju.geometryWithinRadius(row.value.geometry, center, radius)) {
       if (startedOutput) send(",\n");
       out = '{"type": "Feature", "geometry": ' + JSON.stringify(row.value.geometry);
       delete row.value.geometry;

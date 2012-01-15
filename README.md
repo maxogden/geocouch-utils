@@ -223,8 +223,6 @@ Example:
 
 This will take the centroid of the bbox parameter and a supplied radius parameter in meters and filter the rectangularly shaped bounding box result set by circular radius.
 
-**WARNING** This only works with on points, not lines or polygons yet
-
 Example:
 
 	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/_list/radius/basic?bbox=-122.67,45.52,-122.67,45.52&radius=50'
