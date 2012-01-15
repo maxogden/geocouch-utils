@@ -24,13 +24,13 @@ Once you have the couchapp utility working, <code>git clone</code> this repo and
 
 ### [Spatial Views](https://github.com/couchbase/geocouch)
 
-#### points.js
+#### basic.js
 
 A spatial view that additionally emits the original GeoJSON value (doc.geometry) 
 
 Example:
 
-	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/points?bbox=80,88,90,90'
+	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/basic?bbox=80,88,90,90'
 	{
 	   "update_seq":203,
 	   "rows":[
@@ -56,13 +56,13 @@ Example:
 	   ]
 	}
 
-#### pointsFull.js
+#### full.js
 
-A spatial view that emits both GeoJSON and the full document (as value).  
+A spatial view that emits both GeoJSON and the full document (as value).
 
 Example:
 
-	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/pointsFull?bbox=80,88,90,90'	
+	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/full?bbox=80,88,90,90'
 	{
 	   "update_seq":203,
 	   "rows":[
@@ -89,13 +89,13 @@ Example:
 	   ]
 	}
 
-#### pointsOnly.js
+#### minimal.js
 
 A spatial view that only emits GeoJSON and no additional value.
 
 Example:
 
-	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/pointsOnly?bbox=80,88,90,90'	
+	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/minimal?bbox=80,88,90,90'	
 	{
 	   "update_seq":203,
 	   "rows":[
@@ -178,7 +178,7 @@ This list function generates a simple KML feed
 
 Example:
 
-    $ curl http://localhost:5984/yourdb/_design/geo/_spatiallist/kml/points?bbox=0,0,45,45
+    $ curl http://localhost:5984/yourdb/_design/geo/_spatial/_list/kml/basic?bbox=0,0,45,45
 
     <?xml version="1.0" encoding="UTF-8"?>
     <kml xmlns="http://www.opengis.net/kml/2.2">
@@ -198,7 +198,7 @@ This function outputs a GeoJSON FeatureCollection (compatible with OpenLayers).
   
 Example:
 
-	$curl -X GET 'http://localhost:5984/yourdb/_design/geo/_spatiallist/geojson/points?bbox=80,88,90,90'	
+	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/_list/geojson/basic?bbox=80,88,90,90'	
 	{
 	   "type":"FeatureCollection",
 	   "features":[
@@ -223,11 +223,9 @@ Example:
 
 This will take the centroid of the bbox parameter and a supplied radius parameter in meters and filter the rectangularly shaped bounding box result set by circular radius.
 
-**WARNING** This only works with on points, not lines or polygons yet
-
 Example:
 
-	$ curl -X GET http://localhost:5984/yourdb/_design/geo/_spatiallist/radius/points?bbox=-122.67,45.52,-122.67,45.52&radius=50
+	$ curl 'http://localhost:5984/yourdb/_design/geo/_spatial/_list/radius/basic?bbox=-122.67,45.52,-122.67,45.52&radius=50'
 	{
 	   "type":"FeatureCollection",
 	   "features":[
