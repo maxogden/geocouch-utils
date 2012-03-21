@@ -1,1 +1,0 @@
-A Polymaps viewer developed for use in the http://civicapi.com/ project
